@@ -37,6 +37,13 @@ class SendCandidate(TypedDict):
     candidate: dict
 
 
+class StreamStatus(TypedDict):
+    type: Literal["streamstatus"]
+    sender: str
+    media: Literal["video"] | Literal["audio"]
+    status: bool
+
+
 class RoomConsumer(AsyncJsonWebsocketConsumer):
     channel_layer: InMemoryChannelLayer
     signed = False
@@ -115,6 +122,13 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             self.group_name, dict(type="send_sdp", data=content)
         )
 
+    async def handle_stream_status(self, content: StreamStatus):
+        if not self.user_id:
+            return
+        await self.channel_layer.group_send(
+            self.group_name, dict(type="send_to_others", data=content)
+        )
+
     async def receive_json(
         self,
         content: Authentication | NotifyParticipant | SendSDP | SendCandidate,
@@ -139,5 +153,14 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         d = data["data"]
         receiver_id = d["receiver"]
         if self.user_id != receiver_id:
+            return
+        await self.send_json(d)
+
+    async def send_to_others(self, data: dict):
+        if not self.user_id:
+            return
+        d = data["data"]
+        sender_id = d["sender"]
+        if self.user_id == sender_id:
             return
         await self.send_json(d)
