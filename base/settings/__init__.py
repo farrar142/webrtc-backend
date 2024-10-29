@@ -63,8 +63,6 @@ INSTALLED_APPS = [
 
 if DEBUG:
     INSTALLED_APPS.append("django_extensions")
-else:
-    INSTALLED_APPS.append("sentry")
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
