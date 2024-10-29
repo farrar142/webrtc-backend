@@ -6,7 +6,6 @@ from django.core.cache import cache
 from rest_framework import exceptions
 
 from commons.lock import with_lock
-from commons.permissions import AuthorizedOnly
 
 
 class Participant(BaseModel):
