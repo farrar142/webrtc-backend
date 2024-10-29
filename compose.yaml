@@ -1,0 +1,44 @@
+services:
+  server:
+    build: .
+    container_name: webrtc-backend
+    # command: sh dev.sh runserver 0.0.0.0:8000
+    command: tail -f /dev/null
+    ports:
+      - 8002:8000
+    volumes:
+      - .:/app
+      - .vscode-server:/root/.vscode-server
+    healthcheck:
+        test: ['CMD','curl','http://localhost:8002/']
+        interval: 10s
+        timeout: 5s
+        retries: 2
+        start_period: 5s
+    restart: on-failure
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 'all'
+              capabilities: [gpu]
+  deploy: &deploy
+    build: .
+    entrypoint: sh run.sh 1/4
+    container_name: webrtc-backend
+    restart: always
+  celery:
+    build: .
+    container_name: cotton-celery
+    entrypoint: sh celery.sh
+    restart: on-failure
+
+  beat:
+    build: .
+    container_name: cotton-celery-beat
+    entrypoint: sh beat.sh
+    restart: on-failure
+
+   
