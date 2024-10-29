@@ -131,7 +131,9 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(
         self,
-        content: Authentication | NotifyParticipant | SendSDP | SendCandidate,
+        content: (
+            Authentication | NotifyParticipant | SendSDP | SendCandidate | StreamStatus
+        ),
         **kwargs,
     ):
         print(content["type"])
@@ -143,6 +145,8 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             await self.handle_send_sdp(content)
         elif content["type"] == "sendcandidate":
             await self.handle_send_candidate(content)
+        elif content["type"] == "streamstatus":
+            await self.handle_stream_status(content)
 
     async def emit(self, data):
         await self.send_json(data["data"])
