@@ -105,7 +105,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         if not self.user_id:
             return
         await self.channel_layer.group_send(
-            self.group_name, dict(type="emit", data=content)
+            self.group_name, dict(type="send_to_others", data=content)
         )
 
     async def handle_send_sdp(self, content: SendSDP):
