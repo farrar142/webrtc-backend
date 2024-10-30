@@ -73,7 +73,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                     self.group_name,
                     dict(
                         type="emit",
-                        data=dict(type="userdisconnected", user_id=self.user_id),
+                        data=dict(type="userdisconnected", sender=self.user_id),
                     ),
                 )
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
