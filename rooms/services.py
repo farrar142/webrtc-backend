@@ -82,3 +82,4 @@ class RoomService:
             filter(lambda x: x.user_id != user_id, room.participants)
         )
         cache.set(self.room_key, room.model_dump(), timeout=None)
+        return room

@@ -68,14 +68,19 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.channel_layer:
             if self.user_id:
-                await sync_to_async(self.service.remove_participant)(self.user_id)
-                await self.channel_layer.group_send(
-                    self.group_name,
-                    dict(
-                        type="emit",
-                        data=dict(type="userdisconnected", sender=self.user_id),
-                    ),
+                room = await sync_to_async(self.service.remove_participant)(
+                    self.user_id
                 )
+                if room.participants:
+                    await self.channel_layer.group_send(
+                        self.group_name,
+                        dict(
+                            type="emit",
+                            data=dict(type="userdisconnected", sender=self.user_id),
+                        ),
+                    )
+                else:
+                    await sync_to_async(self.service.drop_room)()
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def handle_authentication(self, content: Authentication):
